@@ -116,120 +116,98 @@ def m_predict():
     transfer_state = state
     transfer_year = year
     transfer_month = month
-    #
-    # data_month = pd.read_csv('road-accidents-in-india/only_road_accidents_data_month2.csv')
-    #
-    # # accidents per month
-    # count = 0
-    # month_acc =[]
-    # for month in data_month.columns[2:-1]:
-    #     for i in data_month.index:
-    #         count = count + data_month.loc[i,month]
-    #     acc = (month,count)
-    #     month_acc.append(acc)
-    #     count = 0
-    # # month_acc
-    #
-    # i = 0
-    #
-    # new_data_month = pd.DataFrame(columns=['STATE/UT', 'YEAR', 'MONTH', 'ACCIDENTS'], index=np.arange(10000))
-    # for states in data_month['STATE/UT'].unique():
-    #     for year in data_month['YEAR'].unique():
-    #         for month in data_month.columns[2:-1]:
-    #             new_data_month.loc[i, 'STATE/UT'] = states
-    #             new_data_month.loc[i, 'YEAR'] = year
-    #             new_data_month.loc[i, 'MONTH'] = month
-    #             i = i + 1
-    #
-    # j = 0
-    # for i in data_month.index:
-    #     for month in data_month.columns[2:-1]:
-    #         new_data_month.loc[j, 'ACCIDENTS'] = data_month.loc[i, month]
-    #         j = j + 1
-    # new_data_month = new_data_month.dropna(how='any', axis=0)
-    # new_data_month.to_csv('prepared data month.csv')
-    #
-    # le_month_1 = LabelEncoder()
-    # le_month_2 = LabelEncoder()
-    # new_data_month['STATE/UT'] = le_month_1.fit_transform(new_data_month['STATE/UT'])
-    # new_data_month['MONTH'] = le_month_2.fit_transform(new_data_month['MONTH'])
-    #
-    # ohe = OneHotEncoder()
-    # data_month_matrix_x = new_data_month[['STATE/UT', 'YEAR', 'MONTH']].values
-    # data_month_matrix_y = new_data_month.ACCIDENTS
-    # # data_month_matrix_x
-    #
-    # ohe.fit(data_month_matrix_x)
-    # data_matrix_month = ohe.transform(data_month_matrix_x).toarray()
-    # model = LinearRegression(fit_intercept=False)
-    # X_train, X_test, y_train, y_test = train_test_split(data_matrix_month, data_month_matrix_y, test_size=0.2, random_state = 2)
-    # model.fit(X_train, y_train)
-    # model.score(X_test, y_test)
-    #
-    #
-    # state = le_month_1.transform([state])
-    # month = le_month_2.transform([month])
-    #
-    # cal = ohe.transform([[state, year, month]])
-    #
-    # predicted = model.predict(cal)
-    data_month = pd.read_csv('road-accidents-in-india/only_road_accidents_data_month2.csv')
 
-    count = 0
-    month_acc = []
-    for month in data_month.columns[2:-1]:
-        for i in data_month.index:
-            count = count + data_month.loc[i, month]
-        acc = (month, count)
-        month_acc.append(acc)
-        count = 0
-    month_acc
+    new_data = pd.read_csv('prepared_data_month.csv')
+    data = pd.read_csv('only_month_data.csv')
+    e = []
+    cnt2 = 0
+    for year in data['YEAR'].unique():
+        for i in data.index:
+            if data.loc[i, 'YEAR'] == year:
+                cnt2 = cnt2 + data.loc[i, 'TOTAL']
+        year_acc = (year, cnt2)
+        cnt2 = 0
+        e.append(year_acc)
+    model2= LinearRegression()
+    X_data = np.array([m[0] for m in e])
+    Y_data = np.array([y[1] for y in e])
+    model2.fit(X_data.reshape(len(X_data), 1), Y_data.reshape(len(Y_data), 1))
 
-    i = 0
+    data = pd.read_csv('prepared_data_month.csv')
+    data = data.drop('Unnamed: 0', axis=1)
+    le1 = LabelEncoder()
+    le2 = LabelEncoder()
+    for i in data.index:
+        if data.loc[i, 'MONTH'] == 'JANUARY':
+            data.loc[i, 'MONTH'] = 0
+        elif data.loc[i, 'MONTH'] == 'FEBRUARY':
+            data.loc[i, 'MONTH'] = 1
+        elif data.loc[i, 'MONTH'] == 'MARCH':
+            data.loc[i, 'MONTH'] = 2
+        elif data.loc[i, 'MONTH'] == 'APRIL':
+            data.loc[i, 'MONTH'] = 3
+        elif data.loc[i, 'MONTH'] == 'MAY':
+            data.loc[i, 'MONTH'] = 4
+        elif data.loc[i, 'MONTH'] == 'JUNE':
+            data.loc[i, 'MONTH'] = 5
+        elif data.loc[i, 'MONTH'] == 'JULY':
+            data.loc[i, 'MONTH'] = 6
+        elif data.loc[i, 'MONTH'] == 'AUGUST':
+            data.loc[i, 'MONTH'] = 7
+        elif data.loc[i, 'MONTH'] == 'SEPTEMBER':
+            data.loc[i, 'MONTH'] = 8
+        elif data.loc[i, 'MONTH'] == 'OCTOBER':
+            data.loc[i, 'MONTH'] = 9
+        elif data.loc[i, 'MONTH'] == 'NOVEMBER':
+            data.loc[i, 'MONTH'] = 10
+        elif data.loc[i, 'MONTH'] == 'DECEMBER':
+            data.loc[i, 'MONTH'] = 11
 
-    new_data_month = pd.DataFrame(columns=['STATE/UT', 'YEAR', 'MONTH', 'ACCIDENTS'], index=np.arange(10000))
-    for states in data_month['STATE/UT'].unique():
-        for year in data_month['YEAR'].unique():
-            for month in data_month.columns[2:-1]:
-                new_data_month.loc[i, 'STATE/UT'] = states
-                new_data_month.loc[i, 'YEAR'] = year
-                new_data_month.loc[i, 'MONTH'] = month
-                i = i + 1
-    new_data_month.head()
+    data['STATE/UT'] = le1.fit_transform(data['STATE/UT'])
+    data['MONTH'] = le2.fit_transform(data['MONTH'])
 
-    j = 0
-    for i in data_month.index:
-        for month in data_month.columns[2:-1]:
-            new_data_month.loc[j, 'ACCIDENTS'] = data_month.loc[i, month]
-            j = j + 1
-    new_data_month = new_data_month.dropna(how='any', axis=0)
-    new_data_month.to_csv('prepared data month.csv')
-    new_data_month.head()
+    ohe = OneHotEncoder(categorical_features=[0])
+    data_matrix_x = data[['STATE/UT', 'YEAR', 'MONTH']].values
+    data_matrix_y = data.ACCIDENTS
+    ohe.fit(data_matrix_x)
+    data_matrix = ohe.transform(data_matrix_x).toarray()
 
-    le_month_1 = LabelEncoder()
-    le_month_2 = LabelEncoder()
-    new_data_month['STATE/UT'] = le_month_1.fit_transform(new_data_month['STATE/UT'])
-    new_data_month['MONTH'] = le_month_2.fit_transform(new_data_month['MONTH'])
+    model2 = LinearRegression(fit_intercept=False)
+    X_train, X_test, y_train, y_test = train_test_split(data_matrix, data_matrix_y, test_size=0.2, random_state = 2)
+    model2.fit(X_train, y_train)
+    #model2.score(X_test, y_test)
+    state1 = le1.transform([state])
 
-    ohe = OneHotEncoder(categorical_features=[0, 2])
-    data_month_matrix_x = new_data_month[['STATE/UT', 'YEAR', 'MONTH']].values
-    data_month_matrix_y = new_data_month.ACCIDENTS
-    data_month_matrix_x
+    if month == 'JANUARY':
+        month = 0
+    elif month == 'FEBRUARY':
+        month = 1
+    elif month == 'MARCH':
+        month = 2
+    elif month == 'APRIL':
+        month = 3
+    elif month == 'MAY':
+        month = 4
+    elif month == 'JUNE':
+        month = 5
+    elif month == 'JULY':
+        month = 6
+    elif month == 'AUGUST':
+        month = 7
+    elif month == 'SEPTEMBER':
+        month = 8
+    elif month == 'OCTOBER':
+        month = 9
+    elif month == 'NOVEMBER':
+        month = 10
+    elif month == 'DECEMBER':
+        month = 11
 
-    ohe.fit(data_month_matrix_x)
-    data_matrix_month = ohe.transform(data_month_matrix_x).toarray()
-    model = LinearRegression(fit_intercept=False)
-    X_train, X_test, y_train, y_test = train_test_split(data_matrix_month, data_month_matrix_y, test_size=0.2, random_state = 2)
-    model.fit(X_train, y_train)
-    model.score(X_test, y_test)
+    cal = ohe.transform([[state1, year, month]])
+    predicted = model2.predict(cal)
 
-    state = le_month_1.transform([state])
-    month = le_month_2.transform([month])
-
-    cal = ohe.transform([[state, year, month]])
-    predicted=model.predict(cal)
-
-    return render_template('mlr_month.html', predicted=predicted, transfer_month=transfer_month,transfer_state=transfer_state, transfer_year=transfer_year)
+    return render_template('mlr_month.html', predicted=predicted, transfer_month=transfer_month,
+                           transfer_state=transfer_state, transfer_year=transfer_year)
 
 @app.route("/mlr_time", methods=['GET','POST'])
 def mlr_time():
@@ -282,6 +260,7 @@ def t_predict():
 
 
     state1 = le1.transform([state])
+
     if time == '0-3 hrs. (Night)':
         time = 0
     elif time == '3-6 hrs. (Night)':
@@ -299,6 +278,7 @@ def t_predict():
     elif time == '21-24 hrs (Night)':
         time = 7
     cal = ohe.transform([[state1, year, time]])
+    print(cal)
     final_prediction = model2.predict(cal)
 
     return render_template('mlr_time.html', final_prediction=final_prediction,transfer_state=transfer_state,transfer_time=transfer_time,year=year)
